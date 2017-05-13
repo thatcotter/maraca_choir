@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Maraca Choir</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="p5/p5.js"></script>
+    <script>
+
+        // var socket = io.connect('http://localhost:80');
+        var socket = io();
+        var theta = 0;
+        var retro = false;
+        var thetaSpeed = 0;
+        var img;
+
+        function preload() {
+            img = loadImage("maracas.png");
+        }
+
+        function setup() {
+            createCanvas(windowWidth,windowHeight);
+            console.log('click');
+            socket.emit('newPlayer');
+            loadImage("maracas.png");
+        }
+
+        function draw() {
+            background(251,153,53);
+
+            updateTheta();
+
+            push();
+
+            translate( width/2, height/2 );
+            rotate(theta);
+
+            push();
+            translate( -100, -100 );
+            image(img, 0, 0, 200, 200);
+            pop();
+
+            pop();
+        }
+
+        function mousePressed() {
+            console.log('click');
+            socket.emit('click');
+            if (retro) {
+                    thetaSpeed -= 0.01;
+                }else{
+                    thetaSpeed += 0.01;
+                }
+        }
+
+        function deviceShaken() {
+            console.log('shake');
+            socket.emit('shake');
+            if (retro) {
+                    thetaSpeed -= 0.01;
+                }else{
+                    thetaSpeed += 0.01;
+                }
+        }
+
+        function updateTheta(){
+            theta +=  thetaSpeed
+            thetaSpeed *= 0.99
+            if (theta >= 0.05 ) {
+                theta = 0.05
+                thetaSpeed *= -0.99;
+                retro = !retro;
+            }else if (theta <= - 0.05){
+                theta = -0.05
+                thetaSpeed *= -0.99;
+                retro = !retro;
+            }
+            console.log(theta);
+        }
+
+    </script>
+
+</head>
+<body>
+    
+</body>
+</html>
